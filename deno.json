@@ -1,0 +1,15 @@
+{
+  "tasks": {
+    "dev": "deno run -A --unstable --watch source/server.ts",
+    "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --unstable source/server.ts"
+  },
+  "imports": {
+    "std/": "https://deno.land/std@0.181.0/"
+  },
+  "fmt": {
+    "options": {
+      "singleQuote": true,
+      "semiColons": false
+    }
+  }
+}

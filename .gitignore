@@ -1,0 +1,8 @@
+#
+# Files to ignore from Git source control
+#
+
+.DS_Store
+repo
+*.env
+ssh

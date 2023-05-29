@@ -1,0 +1,4 @@
+{
+  "co.gwil.deno.config.enableUnstable" : "true",
+  "workspace.color" : 2
+}

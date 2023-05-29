@@ -1,0 +1,8 @@
+#
+# Files to ignore from the docker deamon
+#
+
+.DS_Store
+repo
+*.env
+ssh
