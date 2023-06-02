@@ -39,6 +39,16 @@ export async function processFile(
   return null
 }
 
+function decodeFilter(input: string | null) {
+  if (!input) return undefined
+
+  return Object.fromEntries(
+    input.split(',')
+      .filter(Boolean)
+      .map((line) => line.split(':')),
+  )
+}
+
 export async function queryRoute({ request, url }: Context) {
   if (request.method !== 'GET') return
 
@@ -46,6 +56,9 @@ export async function queryRoute({ request, url }: Context) {
   const file = url.searchParams.get('file')
   const glob = url.searchParams.get('glob')
   const columns = url.searchParams.get('columns')?.split(',')
+
+  // EXPERIMENTAL
+  const filter = decodeFilter(url.searchParams.get('filter'))
 
   // Process single file lookups
   if (file) {
@@ -79,6 +92,8 @@ export async function queryRoute({ request, url }: Context) {
       const processedData = await processFile(match.path, format, { columns })
 
       if (processedData) {
+        if (filter && !matchFilter(processedData, filter)) continue
+
         data.set(
           relative,
           new Blob([JSON.stringify(processedData)], {
@@ -96,4 +111,22 @@ export async function queryRoute({ request, url }: Context) {
     }
     return new Response(data)
   }
+}
+
+// deno-lint-ignore no-explicit-any
+function matchFilter(input: any, filter: Record<string, unknown>): boolean {
+  for (const [key, value] of Object.entries(filter)) {
+    if (dotGet(input, key.split('.')) !== value) return false
+  }
+  return true
+}
+
+// deno-lint-ignore no-explicit-any
+function dotGet(input: any, path: string[]): unknown {
+  if (input === undefined || input === null) return input
+  if (typeof input !== 'object') return undefined
+
+  const [head, ...tail] = path
+  if (tail.length === 0) return input[head]
+  else return dotGet(input[head], tail)
 }
