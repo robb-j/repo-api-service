@@ -3,7 +3,7 @@ export const repoDir = new URL('../repo/', import.meta.url)
 
 export const REMOTE_URL = env('REMOTE_URL')
 export const NO_PUSH = Deno.env.has('NO_PUSH')
-export const NO_PULL = Deno.env.has('NO_PUSH')
+export const NO_PULL = Deno.env.has('NO_PULL')
 export const SYNC_INTERVAL = 5 * 60 * 1000
 
 /** Get a path in the repo, ensuring it is actually in the repo directory */
