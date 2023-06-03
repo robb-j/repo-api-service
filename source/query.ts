@@ -72,44 +72,52 @@ export async function queryRoute({ request, url }: Context) {
       const denoFile = await Deno.open(fileUrl, { read: true })
       return new Response(denoFile.readable)
     } catch (error) {
-      return new Response(`query failed: ${error.name} + ${error.message}`)
+      return new Response(`query failed: ${error.name} + ${error.message}`, {
+        status: 400
+      })
     }
   }
 
   // Process multi-file lookups glob-based look ups
   if (glob) {
-    console.debug('query glob %o', glob)
-
-    const globUrl = userPath(glob)
-    const data = new FormData()
-    // TODO: this could use a ReadableStream to make it more efficient
-
-    for await (const match of fs.expandGlob(globUrl)) {
-      if (!match.isFile) continue
-
-      const relative = path.relative(repoDir.pathname, match.path)
-
-      const processedData = await processFile(match.path, format, { columns })
-
-      if (processedData) {
-        if (filter && !matchFilter(processedData, filter)) continue
-
-        data.set(
-          relative,
-          new Blob([JSON.stringify(processedData)], {
-            type: 'application/json',
-          }),
-          relative,
-        )
-      } else {
-        data.set(
-          relative,
-          new Blob([await Deno.readFile(match.path)]),
-          relative,
-        )
+    try {
+      console.debug('query glob %o', glob)
+  
+      const globUrl = userPath(glob)
+      const data = new FormData()
+      // TODO: this could use a ReadableStream to make it more efficient
+  
+      for await (const match of fs.expandGlob(globUrl)) {
+        if (!match.isFile) continue
+  
+        const relative = path.relative(repoDir.pathname, match.path)
+  
+        const processedData = await processFile(match.path, format, { columns })
+  
+        if (processedData) {
+          if (filter && !matchFilter(processedData, filter)) continue
+  
+          data.set(
+            relative,
+            new Blob([JSON.stringify(processedData)], {
+              type: 'application/json',
+            }),
+            relative,
+          )
+        } else {
+          data.set(
+            relative,
+            new Blob([await Deno.readFile(match.path)]),
+            relative,
+          )
+        }
       }
+      return new Response(data)
+    } catch (error) {
+      return new Response(`query failed: ${error.name} + ${error.message}`, {
+        status: 400
+      })
     }
-    return new Response(data)
   }
 }
 
