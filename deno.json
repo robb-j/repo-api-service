@@ -4,7 +4,7 @@
     "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo --unstable source/server.ts"
   },
   "imports": {
-    "std/": "https://deno.land/std@0.181.0/"
+    "std/": "https://deno.land/std@0.190.0/"
   },
   "fmt": {
     "options": {

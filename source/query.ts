@@ -73,7 +73,7 @@ export async function queryRoute({ request, url }: Context) {
       return new Response(denoFile.readable)
     } catch (error) {
       return new Response(`query failed: ${error.name} + ${error.message}`, {
-        status: 400
+        status: 400,
       })
     }
   }
@@ -82,21 +82,21 @@ export async function queryRoute({ request, url }: Context) {
   if (glob) {
     try {
       console.debug('query glob %o', glob)
-  
+
       const globUrl = userPath(glob)
       const data = new FormData()
       // TODO: this could use a ReadableStream to make it more efficient
-  
+
       for await (const match of fs.expandGlob(globUrl)) {
         if (!match.isFile) continue
-  
+
         const relative = path.relative(repoDir.pathname, match.path)
-  
+
         const processedData = await processFile(match.path, format, { columns })
-  
+
         if (processedData) {
           if (filter && !matchFilter(processedData, filter)) continue
-  
+
           data.set(
             relative,
             new Blob([JSON.stringify(processedData)], {
@@ -115,7 +115,7 @@ export async function queryRoute({ request, url }: Context) {
       return new Response(data)
     } catch (error) {
       return new Response(`query failed: ${error.name} + ${error.message}`, {
-        status: 400
+        status: 400,
       })
     }
   }
