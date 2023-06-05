@@ -1,3 +1,5 @@
+import * as fs from 'std/fs/mod.ts'
+
 export const scriptsDir = new URL('../scripts/', import.meta.url)
 export const repoDir = new URL('../repo/', import.meta.url)
 
@@ -49,6 +51,8 @@ export async function exec(
 
 export async function syncRepo(signal?: AbortSignal) {
   if (NO_PULL) return console.log('skip pull (NO_PULL=1)')
+
+  await fs.ensureDir(new URL('../repo', import.meta.url))
 
   const result = await exec(
     new URL('sync_repo.sh', scriptsDir),

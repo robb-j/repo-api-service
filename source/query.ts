@@ -112,6 +112,7 @@ export async function queryRoute({ request, url }: Context) {
           )
         }
       }
+      // TODO: maybe use multipart/related ?
       return new Response(data)
     } catch (error) {
       return new Response(`query failed: ${error.name} + ${error.message}`, {
