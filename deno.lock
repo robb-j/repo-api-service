@@ -95,5 +95,16 @@
     "https://deno.land/std@0.190.0/yaml/schema/mod.ts": "4472e827bab5025e92bc2eb2eeefa70ecbefc64b2799b765c69af84822efef32",
     "https://deno.land/std@0.190.0/yaml/stringify.ts": "fffc09c65c68d3d63f8159e8cbaa3f489bc20a8e55b4fbb61a8c2e9f914d1d02",
     "https://deno.land/std@0.190.0/yaml/type.ts": "1aabb8e0a3f4229ce0a3526256f68826d9bdf65a36c8a3890ead8011fcba7670"
+  },
+  "npm": {
+    "specifiers": {
+      "superstruct@^1.0.3": "superstruct@1.0.3"
+    },
+    "packages": {
+      "superstruct@1.0.3": {
+        "integrity": "sha512-8iTn3oSS8nRGn+C2pgXSKPI3jmpm6FExNazNpjvqS6ZUJQCej3PUXEKM8NjHBOs54ExM+LPW/FBRhymrdcCiSg==",
+        "dependencies": {}
+      }
+    }
   }
 }

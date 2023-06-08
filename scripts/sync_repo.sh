@@ -17,6 +17,7 @@ function clone() {
   then
     echo "sync: updating repo"
     git reset --hard
+    git clean --force -d
     git pull || nuke
   fi
 

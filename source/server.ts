@@ -1,11 +1,11 @@
-import 'std/dotenv/load.ts'
-
 import * as flags from 'std/flags/mod.ts'
 
-import { Endpoint, ioQueue, SYNC_INTERVAL, syncRepo } from './lib.ts'
+import { Endpoint, ioQueue } from './lib.ts'
 import { queryRoute } from './query.ts'
 import { createFileRoute } from './write.ts'
 import app from '../app.json' assert { type: 'json' }
+import { syncRepo } from './git.ts'
+import { appConfig } from './config.ts'
 
 const args = flags.parse(Deno.args, {
   string: ['port'],
@@ -30,8 +30,15 @@ const endpoints: Endpoint[] = [
 ]
 
 if (args.sync) {
+  console.debug('initial sync')
   await ioQueue.add(() => syncRepo())
-  setTimeout(() => ioQueue.add(() => syncRepo()), SYNC_INTERVAL)
+  setTimeout(() => ioQueue.add(() => syncRepo()), appConfig.git.syncInterval)
+}
+
+function getBearer(headers: Headers) {
+  const authz = headers.get('authorization')
+  const match = /bearer (.*)/i.exec(authz ?? '')
+  return match ? match[1] : undefined
 }
 
 Deno.serve({ port: parseInt(args.port) }, async (request) => {
@@ -40,6 +47,11 @@ Deno.serve({ port: parseInt(args.port) }, async (request) => {
 
     if (!url.pathname.startsWith('/healthz')) {
       console.info('%s: %o', request.method, url.pathname)
+    }
+
+    const bearer = getBearer(request.headers)
+    if (appConfig.auth.key && bearer !== appConfig.auth.key) {
+      return new Response('Unauthorized', { status: 401 })
     }
 
     for (const endpoint of endpoints) {

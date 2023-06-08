@@ -1,4 +1,6 @@
-import { exec } from './lib.ts'
+import * as fs from 'std/fs/mod.ts'
+import { appConfig } from './config.ts'
+import { exec, repoDir, scriptsDir } from './lib.ts'
 
 /** A wrapper around Deno.Command to perform git operations */
 export class GitRepo {
@@ -42,4 +44,22 @@ export class GitRepo {
   clean() {
     return this.run('clean', ['clean', '--force', '-d'])
   }
+}
+
+export async function syncRepo(signal?: AbortSignal) {
+  if (!appConfig.git.pull) return console.log('skip pull (NO_PULL=1)')
+
+  await fs.ensureDir(new URL('../repo', import.meta.url))
+
+  const result = await exec(new URL('sync_repo.sh', scriptsDir), {
+    cwd: repoDir,
+    args: [appConfig.git.remote],
+    signal,
+  })
+  if (!result.ok) {
+    console.error('Sync failed:', result.stderr)
+    throw new Error('Failed to sync repo')
+  }
+
+  return result
 }

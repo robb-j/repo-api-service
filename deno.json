@@ -1,12 +1,15 @@
 {
   "tasks": {
-    "dev": "deno run -A --unstable --watch source/server.ts --port=9000 --sync",
+    "dev": "deno run -A --unstable --watch=config.json source/server.ts --port=9000 --sync",
     "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo --unstable source/server.ts"
   },
   "imports": {
-    "std/": "https://deno.land/std@0.190.0/"
+    "std/": "https://deno.land/std@0.190.0/",
+    "superstruct": "npm:superstruct@^1.0.3"
   },
   "fmt": {
+    "singleQuote": true,
+    "semiColons": false,
     "options": {
       "singleQuote": true,
       "semiColons": false

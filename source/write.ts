@@ -1,15 +1,9 @@
 import * as path from 'std/path/mod.ts'
 import * as fs from 'std/fs/mod.ts'
 
-import {
-  Context,
-  ioQueue,
-  NO_PUSH,
-  repoDir,
-  syncRepo,
-  userPath,
-} from './lib.ts'
-import { GitRepo } from './git.ts'
+import { Context, ioQueue, repoDir, userPath } from './lib.ts'
+import { GitRepo, syncRepo } from './git.ts'
+import { appConfig } from './config.ts'
 
 function failure(message: string) {
   return new Response(`query failed: ${message}`)
@@ -47,7 +41,7 @@ export function createFileRoute({ request, url }: Context) {
 
       await repo.stage(file)
       await repo.commit('repo-api-service: ' + message)
-      if (!NO_PUSH) await repo.push()
+      if (appConfig.git.push) await repo.push()
 
       return Response.json('ok')
     } catch (error) {

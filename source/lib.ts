@@ -1,12 +1,15 @@
-import * as fs from 'std/fs/mod.ts'
+import {
+  boolean,
+  coerce,
+  create,
+  defaulted,
+  object,
+  string,
+  Struct,
+} from 'superstruct'
 
 export const scriptsDir = new URL('../scripts/', import.meta.url)
 export const repoDir = new URL('../repo/', import.meta.url)
-
-export const REMOTE_URL = env('REMOTE_URL')
-export const NO_PUSH = Deno.env.has('NO_PUSH')
-export const NO_PULL = Deno.env.has('NO_PULL')
-export const SYNC_INTERVAL = 5 * 60 * 1000
 
 /** Get a path in the repo, ensuring it is actually in the repo directory */
 export function userPath(input: string) {
@@ -17,11 +20,30 @@ export function userPath(input: string) {
   return url
 }
 
-/** Grab a strongly typed environment variable or throw an Error */
-export function env(key: string) {
-  const value = Deno.env.get(key)
-  if (!value) throw new Error(`${key} not set`)
-  return value
+export function env(key: string, fallback: string) {
+  return defaulted(string(), Deno.env.get(key) ?? fallback)
+}
+
+export function envBool(key: string, fallback: boolean) {
+  return defaulted(
+    coerce(boolean(), string(), (v) => Boolean(v)),
+    Deno.env.has(key) ?? fallback,
+  )
+}
+
+// deno-lint-ignore no-explicit-any
+export function envObj<T extends Record<string, Struct<any, any>>>(v: T) {
+  return defaulted(object(v), {})
+}
+
+export function loadJsonConfig<T>(url: URL, struct: Struct<T>): T {
+  let file: string
+  try {
+    file = Deno.readTextFileSync(url)
+  } catch {
+    return create({}, struct)
+  }
+  return create(JSON.parse(file), struct)
 }
 
 export interface Context {
@@ -47,22 +69,6 @@ export async function exec(
     stdout: decoder.decode(result.stdout),
     stderr: decoder.decode(result.stderr),
   }
-}
-
-export async function syncRepo(signal?: AbortSignal) {
-  if (NO_PULL) return console.log('skip pull (NO_PULL=1)')
-
-  await fs.ensureDir(new URL('../repo', import.meta.url))
-
-  const result = await exec(
-    new URL('sync_repo.sh', scriptsDir),
-    { cwd: repoDir, args: [REMOTE_URL], signal },
-  )
-  if (!result.ok) {
-    console.error('Sync failed:', result.stderr)
-    throw new Error('Failed to sync repo')
-  }
-  return result
 }
 
 interface AsyncTask<T = unknown> {
