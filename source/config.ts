@@ -22,3 +22,5 @@ export const appConfig = loadJsonConfig(
   new URL('../config.json', import.meta.url),
   AppConfig,
 )
+
+if (import.meta.main) console.log(appConfig)
