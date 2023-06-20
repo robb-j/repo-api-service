@@ -27,7 +27,12 @@ export async function processFile(
     return csv.parse(await Deno.readTextFile(fileUrl), { columns })
   }
   if (format === 'markdown') {
-    return frontMatter.extract(await Deno.readTextFile(fileUrl))
+    const text = await Deno.readTextFile(fileUrl)
+    try {
+      return frontMatter.extract(text)
+    } catch {
+      return { frontMatter: '', body: text, attrs: {} }
+    }
   }
   if (format === 'toml') {
     return toml.parse(await Deno.readTextFile(fileUrl))
@@ -43,7 +48,8 @@ function decodeFilter(input: string | null) {
   if (!input) return undefined
 
   return Object.fromEntries(
-    input.split(',')
+    input
+      .split(',')
       .filter(Boolean)
       .map((line) => line.split(':')),
   )
@@ -92,7 +98,9 @@ export async function queryRoute({ request, url }: Context) {
 
         const relative = path.relative(repoDir.pathname, match.path)
 
-        const processedData = await processFile(match.path, format, { columns })
+        const processedData = await processFile(match.path, format, {
+          columns,
+        })
 
         if (processedData) {
           if (filter && !matchFilter(processedData, filter)) continue

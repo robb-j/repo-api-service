@@ -9,10 +9,6 @@
   },
   "fmt": {
     "singleQuote": true,
-    "semiColons": false,
-    "options": {
-      "singleQuote": true,
-      "semiColons": false
-    }
+    "semiColons": false
   }
 }
