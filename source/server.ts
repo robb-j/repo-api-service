@@ -1,11 +1,12 @@
 import * as flags from 'std/flags/mod.ts'
 
+import app from '../app.json' assert { type: 'json' }
+import { appConfig } from './config.ts'
+import { syncRepo } from './git.ts'
 import { Endpoint, ioQueue } from './lib.ts'
+import { expandRoute } from './list.ts'
 import { queryRoute } from './query.ts'
 import { createFileRoute } from './write.ts'
-import app from '../app.json' assert { type: 'json' }
-import { syncRepo } from './git.ts'
-import { appConfig } from './config.ts'
 
 const args = flags.parse(Deno.args, {
   string: ['port'],
@@ -27,6 +28,7 @@ const endpoints: Endpoint[] = [
   { pattern: new URLPattern({ pathname: '/healthz' }), fn: healthRoute },
   { pattern: new URLPattern({ pathname: '/query' }), fn: queryRoute },
   { pattern: new URLPattern({ pathname: '/file' }), fn: createFileRoute },
+  { pattern: new URLPattern({ pathname: '/expand' }), fn: expandRoute },
 ]
 
 if (args.sync) {
