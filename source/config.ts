@@ -1,7 +1,7 @@
 import 'std/dotenv/load.ts'
 
-import { coerce, defaulted, number, optional, string } from 'superstruct'
-import { envBool, env, envObj, loadJsonConfig } from './lib.ts'
+import { defaulted, number, optional, string } from 'superstruct'
+import { env, envBool, envObj, loadJsonConfig } from './lib.ts'
 
 export const AppConfig = envObj({
   git: envObj({
@@ -9,7 +9,7 @@ export const AppConfig = envObj({
     pull: envBool('GIT_PULL', false),
     push: envBool('GIT_PULL', false),
     syncInterval: defaulted(
-      coerce(number(), string(), (v) => parseInt(v)),
+      number(),
       5 * 60 * 1000,
     ),
   }),

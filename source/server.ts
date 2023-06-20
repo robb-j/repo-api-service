@@ -20,6 +20,7 @@ import {
 import { expandRoute } from './expand.ts'
 import { queryRoute } from './query.ts'
 import { createFileRoute } from './write.ts'
+import { webhookRoute } from './webhook.ts'
 
 const args = flags.parse(Deno.args, {
   string: ['port'],
@@ -42,12 +43,16 @@ const endpoints: Endpoint[] = [
   { pattern: new URLPattern({ pathname: '/query' }), fn: queryRoute },
   { pattern: new URLPattern({ pathname: '/file' }), fn: createFileRoute },
   { pattern: new URLPattern({ pathname: '/expand' }), fn: expandRoute },
+  { pattern: new URLPattern({ pathname: '/webhook' }), fn: webhookRoute },
 ]
 
 if (args.sync) {
-  console.debug('initial sync')
+  console.debug('initial sync t=%d', appConfig.git.syncInterval)
   await ioQueue.add(() => syncRepo())
-  setTimeout(() => ioQueue.add(() => syncRepo()), appConfig.git.syncInterval)
+  setInterval(
+    () => ioQueue.add(() => syncRepo()),
+    appConfig.git.syncInterval,
+  )
 }
 
 async function router(request: Request) {
