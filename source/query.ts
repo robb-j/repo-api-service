@@ -5,7 +5,13 @@ import * as csv from 'std/csv/mod.ts'
 import * as frontMatter from 'std/front_matter/any.ts'
 import * as toml from 'std/toml/mod.ts'
 
-import { Context, repoDir, userPath } from './lib.ts'
+import {
+  BadRequest,
+  Context,
+  MethodNotAllowed,
+  repoDir,
+  userPath,
+} from './lib.ts'
 
 export interface ProcessFileOptions {
   columns?: string[]
@@ -56,7 +62,7 @@ function decodeFilter(input: string | null) {
 }
 
 export async function queryRoute({ request, url }: Context) {
-  if (request.method !== 'GET') return
+  if (request.method !== 'GET') throw new MethodNotAllowed()
 
   const format = url.searchParams.get('format') ?? 'binary'
   const file = url.searchParams.get('file')
@@ -69,7 +75,6 @@ export async function queryRoute({ request, url }: Context) {
   // Process single file lookups
   if (file) {
     try {
-      console.debug('query file %o', file)
       const fileUrl = userPath(file)
 
       const processedData = await processFile(fileUrl, format, { columns })
@@ -78,19 +83,16 @@ export async function queryRoute({ request, url }: Context) {
       const denoFile = await Deno.open(fileUrl, { read: true })
       return new Response(denoFile.readable)
     } catch (error) {
-      return new Response(`query failed: ${error.name} + ${error.message}`, {
-        status: 400,
-      })
+      throw new BadRequest(`query failed: ${error.name} + ${error.message}`)
     }
   }
 
   // Process multi-file lookups glob-based look ups
   if (glob) {
     try {
-      console.debug('query glob %o', glob)
-
       const globUrl = userPath(glob)
       const data = new FormData()
+
       // TODO: this could use a ReadableStream to make it more efficient
 
       for await (const match of fs.expandGlob(globUrl)) {
@@ -123,11 +125,11 @@ export async function queryRoute({ request, url }: Context) {
       // TODO: maybe use multipart/related ?
       return new Response(data)
     } catch (error) {
-      return new Response(`query failed: ${error.name} + ${error.message}`, {
-        status: 400,
-      })
+      throw new BadRequest(`query failed: ${error.name} + ${error.message}`)
     }
   }
+
+  throw new BadRequest('Unsupported parameters')
 }
 
 // deno-lint-ignore no-explicit-any

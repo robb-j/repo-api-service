@@ -47,7 +47,7 @@ export class GitRepo {
 }
 
 export async function syncRepo(signal?: AbortSignal) {
-  if (!appConfig.git.pull) return console.log('skip pull (NO_PULL=1)')
+  if (!appConfig.git.pull) return console.debug('skip pull (NO_PULL=1)')
 
   await fs.ensureDir(new URL('../repo', import.meta.url))
 

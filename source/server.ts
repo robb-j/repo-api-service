@@ -1,10 +1,23 @@
 import * as flags from 'std/flags/mod.ts'
 
+import { isHttpError } from 'std/http/http_errors.ts'
+import { gray, red, yellow } from 'std/fmt/colors.ts'
+
 import app from '../app.json' assert { type: 'json' }
 import { appConfig } from './config.ts'
 import { syncRepo } from './git.ts'
-import { Endpoint, ioQueue } from './lib.ts'
-import { expandRoute } from './list.ts'
+import {
+  cleanStack,
+  Endpoint,
+  getBearer,
+  InternalServerError,
+  ioQueue,
+  NotFound,
+  pickHttpColor,
+  prettySearch,
+  Unauthorized,
+} from './lib.ts'
+import { expandRoute } from './expand.ts'
 import { queryRoute } from './query.ts'
 import { createFileRoute } from './write.ts'
 
@@ -37,36 +50,52 @@ if (args.sync) {
   setTimeout(() => ioQueue.add(() => syncRepo()), appConfig.git.syncInterval)
 }
 
-function getBearer(headers: Headers) {
-  const authz = headers.get('authorization')
-  const match = /bearer (.*)/i.exec(authz ?? '')
-  return match ? match[1] : undefined
+async function router(request: Request) {
+  const url = new URL(request.url)
+
+  if (appConfig.auth.key && getBearer(request.headers) !== appConfig.auth.key) {
+    throw new Unauthorized()
+  }
+
+  for (const endpoint of endpoints) {
+    const match = endpoint.pattern.exec(url)
+    if (!match) continue
+    const params = match.pathname.groups as Record<string, string>
+    const response = await endpoint.fn({ url, request, params })
+    if (response instanceof Response) return response
+  }
+
+  throw new NotFound()
+}
+
+function logger(request: Request, response: Response) {
+  const url = new URL(request.url)
+  console.info(
+    '%s %s %s %s',
+    pickHttpColor(response.status)(response.status.toString()),
+    yellow(request.method),
+    url.pathname,
+    gray(prettySearch(url)),
+  )
+}
+
+function handler(error: Error & { stack: string }) {
+  const httpError = !isHttpError(error)
+    ? new InternalServerError(error.message)
+    : error
+
+  if (error !== httpError) {
+    console.error(red('Fatal error'))
+    console.error(gray(cleanStack(error.stack)))
+  }
+
+  return new Response(httpError.message, {
+    status: httpError.status,
+  })
 }
 
 Deno.serve({ port: parseInt(args.port) }, async (request) => {
-  try {
-    const url = new URL(request.url)
-
-    if (!url.pathname.startsWith('/healthz')) {
-      console.info('%s: %o', request.method, url.pathname)
-    }
-
-    const bearer = getBearer(request.headers)
-    if (appConfig.auth.key && bearer !== appConfig.auth.key) {
-      return new Response('Unauthorized', { status: 401 })
-    }
-
-    for (const endpoint of endpoints) {
-      const match = endpoint.pattern.exec(url)
-      if (!match) continue
-      const params = match.pathname.groups as Record<string, string>
-      const response = await endpoint.fn({ url, request, params })
-      if (response instanceof Response) return response
-    }
-
-    return new Response('Not found', { status: 404 })
-  } catch (error) {
-    console.error('Internal error', error)
-    return new Response('Internal Error', { status: 500 })
-  }
+  const response = await router(request).catch(handler)
+  logger(request, response)
+  return response
 })
