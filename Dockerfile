@@ -10,6 +10,7 @@ USER deno
 
 COPY --chown=deno:deno [".", "/app/"]
 
-RUN deno cache source/server.ts
+RUN deno cache source/server.ts \
+  && git config --global --add safe.directory /app/repo
 
 CMD ["task", "serve", "--sync"]
