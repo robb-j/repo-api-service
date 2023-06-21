@@ -101,17 +101,24 @@ interface AsyncTask<T = unknown> {
 export class Queue {
   current: AsyncTask | null = null
   tasks: AsyncTask[] = []
+  debug = createDebug('queue')
 
   get isEmpty(): boolean {
     return this.tasks.length === 0
   }
   add<T>(fn: () => Promise<T>) {
+    this.debug('add', fn)
     return new Promise<T>((resolve, reject) => {
       this.tasks.push({ resolve, reject, fn })
       setTimeout(() => this.#execute(), 0)
     })
   }
   async #execute() {
+    this.debug(
+      'execute current=%o tasks=%o',
+      Boolean(this.current),
+      this.tasks.length,
+    )
     if (this.current || this.tasks.length === 0) return
     this.current = this.tasks.shift()!
     try {

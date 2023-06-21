@@ -1,51 +1,74 @@
-import * as path from 'std/path/mod.ts'
+import { red } from 'std/fmt/colors.ts'
 import * as fs from 'std/fs/mod.ts'
+import * as path from 'std/path/mod.ts'
 
-import { Context, ioQueue, repoDir, userPath } from './lib.ts'
-import { GitRepo, syncRepo } from './git.ts'
 import { appConfig } from './config.ts'
+import { GitRepo, syncRepo } from './git.ts'
+import {
+  BadRequest,
+  Context,
+  createDebug,
+  ioQueue,
+  MethodNotAllowed,
+  repoDir,
+  userPath,
+} from './lib.ts'
 
-function failure(message: string) {
-  return new Response(`query failed: ${message}`)
-}
+const debug = createDebug('write')
 
 export function createFileRoute({ request, url }: Context) {
-  if (request.method !== 'PUT') return
+  if (request.method !== 'PUT') throw new MethodNotAllowed()
 
   const repo = new GitRepo(repoDir, request.signal)
   const message = url.searchParams.get('message') ?? 'automated commit'
   const file = url.searchParams.get('file')
 
-  if (!file) return failure('?file not set')
-  if (!request.body) return failure('No body to parse')
+  if (!file) throw new BadRequest('?file not set')
+  if (!request.body) throw new BadRequest('No body to parse')
 
-  console.debug('file %o', file)
+  debug('scheduling')
 
   // Queue the IO operation so only 1 can happen at once
   return ioQueue.add(async () => {
     const currentCommit = await repo.head()
     const rollbackSha = currentCommit.stdout.trim()
-    console.debug('current sha=%o', rollbackSha)
+    debug('current sha=%o', rollbackSha)
 
     try {
       const fileUrl = userPath(file)
+      debug('file', fileUrl.pathname)
 
-      await syncRepo(request.signal)
+      const sync = await syncRepo(request.signal)
+      debug('sync', sync?.ok)
 
       // Ensure the directory exists...
       const fileDir = userPath(path.dirname(file))
       await fs.ensureDir(fileDir)
+      debug('folder(s) created')
 
-      const target = await Deno.open(fileUrl, { write: true, create: true })
+      const target = await Deno.open(fileUrl, {
+        write: true,
+        create: true,
+        truncate: true,
+      })
       await request.body!.pipeTo(target.writable)
+      debug('file written', request.body)
 
-      await repo.stage(file)
-      await repo.commit('repo-api-service: ' + message)
-      if (appConfig.git.push) await repo.push()
+      const stage = await repo.stage(file)
+      debug('stage', stage.ok)
+
+      const commit = await repo.commit('repo-api-service: ' + message)
+      debug('commit', commit.ok)
+      if (appConfig.git.push) {
+        const push = await repo.push()
+        debug('push', push.ok)
+      } else {
+        debug('skip push')
+      }
 
       return Response.json('ok')
     } catch (error) {
-      console.error('create file failed', error)
+      console.error(red('create file failed'), error)
 
       const reset = await repo.rollback(rollbackSha)
       if (!reset.ok) console.error('reset failed', reset.stdout)
@@ -53,7 +76,7 @@ export function createFileRoute({ request, url }: Context) {
       const clean = await repo.clean()
       if (!clean.ok) console.error('clean failed', clean.stderr)
 
-      return failure(error.message)
+      throw new BadRequest(error.message)
     }
   })
 }

@@ -94,9 +94,12 @@ function handler(error: Error & { stack: string }) {
     ? new InternalServerError(error.message)
     : error
 
-  if (error !== httpError) {
+  if (error !== httpError || httpError.status >= 500) {
     console.error(red('Fatal error'))
     console.error(gray(cleanStack(error.stack)))
+  } else {
+    debug('error', error.message)
+    debug('error', gray(cleanStack(error.stack)))
   }
 
   return new Response(httpError.message, {
