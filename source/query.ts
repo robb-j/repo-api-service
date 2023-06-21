@@ -8,10 +8,13 @@ import * as toml from 'std/toml/mod.ts'
 import {
   BadRequest,
   Context,
+  createDebug,
   MethodNotAllowed,
   repoDir,
   userPath,
 } from './lib.ts'
+
+const debug = createDebug('query')
 
 export interface ProcessFileOptions {
   columns?: string[]
@@ -76,10 +79,15 @@ export async function queryRoute({ request, url }: Context) {
   if (file) {
     try {
       const fileUrl = userPath(file)
+      debug('file', fileUrl.pathname)
 
       const processedData = await processFile(fileUrl, format, { columns })
-      if (processedData) return Response.json(processedData)
+      if (processedData) {
+        debug('data %o', processedData)
+        return Response.json(processedData)
+      }
 
+      debug('raw')
       const denoFile = await Deno.open(fileUrl, { read: true })
       return new Response(denoFile.readable)
     } catch (error) {
@@ -89,6 +97,7 @@ export async function queryRoute({ request, url }: Context) {
 
   // Process multi-file lookups glob-based look ups
   if (glob) {
+    debug('glob', glob)
     try {
       const globUrl = userPath(glob)
       const data = new FormData()
@@ -97,14 +106,14 @@ export async function queryRoute({ request, url }: Context) {
 
       for await (const match of fs.expandGlob(globUrl)) {
         if (!match.isFile) continue
+        debug('match', match.path)
 
         const relative = path.relative(repoDir.pathname, match.path)
 
-        const processedData = await processFile(match.path, format, {
-          columns,
-        })
+        const processedData = await processFile(match.path, format, { columns })
 
         if (processedData) {
+          debug('data %o', processedData)
           if (filter && !matchFilter(processedData, filter)) continue
 
           data.set(
@@ -115,6 +124,7 @@ export async function queryRoute({ request, url }: Context) {
             relative,
           )
         } else {
+          debug('raw')
           data.set(
             relative,
             new Blob([await Deno.readFile(match.path)]),

@@ -25,7 +25,7 @@ export function createFileRoute({ request, url }: Context) {
   return ioQueue.add(async () => {
     const currentCommit = await repo.head()
     const rollbackSha = currentCommit.stdout.trim()
-    console.log('current sha=%o', rollbackSha)
+    console.debug('current sha=%o', rollbackSha)
 
     try {
       const fileUrl = userPath(file)

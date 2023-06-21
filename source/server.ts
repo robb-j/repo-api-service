@@ -8,6 +8,7 @@ import { appConfig } from './config.ts'
 import { syncRepo } from './git.ts'
 import {
   cleanStack,
+  createDebug,
   Endpoint,
   getBearer,
   InternalServerError,
@@ -22,6 +23,8 @@ import { queryRoute } from './query.ts'
 import { createFileRoute } from './write.ts'
 import { webhookRoute } from './webhook.ts'
 
+const debug = createDebug('server')
+
 const args = flags.parse(Deno.args, {
   string: ['port'],
   boolean: ['sync'],
@@ -29,6 +32,8 @@ const args = flags.parse(Deno.args, {
     port: '8000',
   },
 })
+
+debug('start port=%o sync=%o', args.port, args.sync)
 
 function indexRoute() {
   return Response.json({ app })
@@ -47,7 +52,7 @@ const endpoints: Endpoint[] = [
 ]
 
 if (args.sync) {
-  console.debug('initial sync t=%d', appConfig.git.syncInterval)
+  debug('sync t=%o', appConfig.git.syncInterval)
   await ioQueue.add(() => syncRepo())
   setInterval(
     () => ioQueue.add(() => syncRepo()),

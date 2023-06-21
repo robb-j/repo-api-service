@@ -1,4 +1,4 @@
-import { cyan, green, red, underline } from 'std/fmt/colors.ts'
+import { cyan, gray, green, red, underline } from 'std/fmt/colors.ts'
 import { errors } from 'std/http/mod.ts'
 import {
   boolean,
@@ -9,6 +9,7 @@ import {
   string,
   Struct,
 } from 'superstruct'
+import { appConfig } from './config.ts'
 
 //
 // Re-export std/http errors for quick access in routes
@@ -154,4 +155,11 @@ export function prettySearch(url: URL) {
   return Array.from(url.searchParams.entries())
     .map(([k, v]) => `${k}==${v}`)
     .join(' ')
+}
+
+export function createDebug(namespace: string) {
+  return (message: string, ...data: unknown[]) => {
+    if (appConfig.env !== 'development') return
+    console.debug(`${gray(namespace)} ${message}`, ...data)
+  }
 }

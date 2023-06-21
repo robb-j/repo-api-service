@@ -1,6 +1,8 @@
 import * as fs from 'std/fs/mod.ts'
 import { appConfig } from './config.ts'
-import { exec, repoDir, scriptsDir } from './lib.ts'
+import { createDebug, exec, repoDir, scriptsDir } from './lib.ts'
+
+const debug = createDebug('git')
 
 /** A wrapper around Deno.Command to perform git operations */
 export class GitRepo {
@@ -11,6 +13,7 @@ export class GitRepo {
   constructor(public dir: string | URL, public signal?: AbortSignal) {}
 
   async run(namespace: string, args: string[]) {
+    debug('%s %o', namespace, args)
     const result = await exec('git', {
       ...this.options,
       args,
@@ -48,7 +51,7 @@ export class GitRepo {
 
 export async function syncRepo(signal?: AbortSignal) {
   if (!appConfig.git.pull) return console.debug('skip pull (NO_PULL=1)')
-  console.debug('syncing')
+  debug('syncing')
 
   await fs.ensureDir(new URL('../repo', import.meta.url))
 
