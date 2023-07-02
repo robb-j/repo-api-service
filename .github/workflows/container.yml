@@ -15,6 +15,11 @@ on:
 jobs:
   build_container:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
