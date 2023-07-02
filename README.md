@@ -319,6 +319,9 @@ file permissions and ownership otherwise they will be ignored. It is also useful
 to add in `.ssh/known_hosts` so that the container doesn't need to confirm the
 hosts.
 
+If you want to use a config file, mount that at `/app/config.json` in the
+container.
+
 ## Development
 
 There are deno tasks for local development and they are configured to run the
