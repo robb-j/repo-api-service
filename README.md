@@ -65,10 +65,9 @@ Use the `glob` parameter to retrieve multiple files and it will return them as a
 where the name is the path of the matched file and the body is the contents of
 the file.
 
-````
 ```sh
 http $URL/query "glob==content/post/*.md"
-````
+```
 
 <details>
 <summary>Response</summary>
@@ -286,6 +285,39 @@ pull/push from the the repository in question. This can be an ssh key for
 example. If using the container, this is the `deno` user and the credentials
 should be put into `/home/deno/.ssh` and you need to make sure they have the
 correct file permissions and ownership.
+
+## Deplopment
+
+Each version is released as a container on `ghcr.io`, built automatically with
+GitHub Actions. These images are currently build to `amd64` and `arm64`
+architectures. You could use a **docker-compose.yml** file like this to run the
+container:
+
+```yml
+version: '2.4'
+
+services:
+  repo-api:
+    image: ghcr.io/robb-j/repo-api-service:0.1.0
+    environment:
+      NO_PUSH: 'true'
+      NO_PULL: 'true'
+      REMOTE_URL: git@github.com:robb-j/r0b-blog.git
+    volumes:
+      - ./repos/blog:/app/repo
+      - ~/.ssh:/home/deno/.ssh
+    ports:
+      - 8000:8000
+```
+
+The container runs on port `8000` by default and the repository goes into
+`/app/repo`. You can configure git access to the `deno` user by mounting
+credentials into `/home/deno/.ssh`.
+
+Make sure any SSH credentials or files in the `.ssh` folder have the correct
+file permissions and ownership otherwise they will be ignored. It is also useful
+to add in `.ssh/known_hosts` so that the container doesn't need to confirm the
+hosts.
 
 ## Development
 
