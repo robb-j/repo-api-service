@@ -6,14 +6,11 @@
 # - original gist: https://gist.github.com/robb-j/049217ca8cecf4e214b8b82123f7371b
 #
 
-name: 'Build Container'
+name: "Build Container"
 
 on:
   push:
     tags: [v*.*.*]
-
-env:
-  REGISTRY: containers.r0b.io/repo-api-service
 
 jobs:
   build_container:
@@ -27,7 +24,8 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ env.REGISTRY }}
+            containers.r0b.io/repo-api-service
+            ghcr.io/robb-j/repo-api-service
           tags: |
             type=semver,pattern={{version}}
 
@@ -43,6 +41,13 @@ jobs:
           registry: containers.r0b.io
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v4
