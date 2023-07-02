@@ -163,11 +163,15 @@ vary: Accept-Encoding
 
 </details>
 
-### `POST /file`
+### `PUT /file`
 
 Use the file endpoint to write a file to repository, commit it to git and push
 the change upstream. It will write the file in the request body at the location
 specified by the `file` parameter.
+
+Use the `message` parameter to set the commit message, this will be prefixed
+with `repo-api-service` and defaults to `repo-api-service: automated commit` if
+not set.
 
 ```sh
 cat page.md | http put $URL/file file==page.md message=="Update page"
