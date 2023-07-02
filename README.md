@@ -183,7 +183,7 @@ If you want to see whats in a repository without retrieving the whole files, you
 can ask the API to expand a glob for you.
 
 ```sh
-http $URL//expand "glob==content/post/*.md"
+http $URL/expand "glob==content/post/*.md"
 ```
 
 <details>
