@@ -8,7 +8,7 @@ export const AppConfig = envObj({
   git: envObj({
     remote: env('GIT_REMOTE', 'https://github.com/robb-j/r0b-blog.git'),
     pull: envBool('GIT_PULL', false),
-    push: envBool('GIT_PULL', false),
+    push: envBool('GIT_PUSH', false),
     syncInterval: defaulted(
       number(),
       5 * 60 * 1000,
