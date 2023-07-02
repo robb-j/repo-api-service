@@ -286,3 +286,23 @@ pull/push from the the repository in question. This can be an ssh key for
 example. If using the container, this is the `deno` user and the credentials
 should be put into `/home/deno/.ssh` and you need to make sure they have the
 correct file permissions and ownership.
+
+## Development
+
+There are deno tasks for local development and they are configured to run the
+app on port `9000` and have the repository in `repo`. Git pull & push are
+disabled by default so can manually check out the repository in question or just
+work with static files. You can set environment variables by creating a `.env`
+file at the root of the project.
+
+```sh
+deno task dev
+```
+
+**release process**
+
+1. Make sure the `CHANGELOG.md` is up to date
+2. Bump the version in `app.json`
+3. Commit the change as `X.Y.Z`
+4. Tag the commit as `vX.Y.Z`
+5. Push the commit & tag and it'll build the container.
