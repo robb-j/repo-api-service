@@ -9,7 +9,7 @@ endpoint to write changes to the repo and commit and push them upstream.
 ## Endpoints
 
 > Examples are written with [httpie](https://httpie.io/) with
-> [robb-j/r0b-home](https://github.com/robb-j/r0b-home) as the repository being
+> [robb-j/r0b-blog](https://github.com/robb-j/r0b-blog) as the repository being
 > queried.
 
 ### `GET /`
