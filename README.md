@@ -6,6 +6,10 @@ does that. It is a service that checks out a git repo and keeps it up to date.
 There is then an API to get and query files in the repository and another
 endpoint to write changes to the repo and commit and push them upstream.
 
+This is designed to be run as a single container bound to a single git
+repository. So to support multiple repositories you run multiple containers with
+different configurations.
+
 ## Endpoints
 
 > Examples are written with [httpie](https://httpie.io/) with
