@@ -236,6 +236,51 @@ vary: Accept-Encoding
 
 </details>
 
+### `GET /changed`
+
+> new in **0.2.0**
+
+Find out which files changed at certain times and/or at certain paths or globs.
+
+```sh
+http :9000/changed since=="10 days ago" paths=="content/post/*"
+```
+
+There are these URL search parameters available, you can specify any combination
+or none of them:
+
+- `since` — specify the lower bound of the date range, only showing files that
+  were changed after this date
+- `until` — specify the higher bound of the date range, to only show files
+  changed before this date
+- `paths` — narrow down the paths you wish to search within. This can be set
+  multiple times to look at different files or use multiple glob patterns. The
+  request will fail if a path is specified that doesn't exist in the repository.
+
+> Git dates — You can see the accepted formats from
+> [this git commit](https://github.com/git/git/commit/34dc6e73b01011fcbe0f314d47fd6120382ae145)
+
+<details>
+<summary>Response</summary>
+
+```http
+HTTP/1.1 200 OK
+content-encoding: gzip
+content-length: 136
+content-type: application/json
+date: Wed, 02 Aug 2023 13:49:09 GMT
+vary: Accept-Encoding
+
+[
+    "content/post/useful-rpi-wifi-commands.md",
+    "content/post/host-an-ics-calendar-feed-with-eleventy.md",
+    "content/post/host-a-ics-calendar-feed-with-eleventy.md",
+    "content/post/embed-jsdoc-comments-in-an-eleventy-website-with-ts-morph.md"
+]
+```
+
+</details>
+
 ## Configuration
 
 The service can be configured by a configuration file or with environment

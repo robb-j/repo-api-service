@@ -22,6 +22,7 @@ import { expandRoute } from './expand.ts'
 import { queryRoute } from './query.ts'
 import { createFileRoute } from './write.ts'
 import { webhookRoute } from './webhook.ts'
+import { changedRoute } from './changed.ts'
 
 const debug = createDebug('server')
 
@@ -49,6 +50,7 @@ const endpoints: Endpoint[] = [
   { pattern: new URLPattern({ pathname: '/file' }), fn: createFileRoute },
   { pattern: new URLPattern({ pathname: '/expand' }), fn: expandRoute },
   { pattern: new URLPattern({ pathname: '/webhook' }), fn: webhookRoute },
+  { pattern: new URLPattern({ pathname: '/changed' }), fn: changedRoute },
 ]
 
 if (args.sync) {

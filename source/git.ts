@@ -4,6 +4,12 @@ import { createDebug, exec, repoDir, scriptsDir } from './lib.ts'
 
 const debug = createDebug('git')
 
+export interface LogFilesOptions {
+  since?: string
+  until?: string
+  paths?: string[]
+}
+
 /** A wrapper around Deno.Command to perform git operations */
 export class GitRepo {
   get options() {
@@ -46,6 +52,16 @@ export class GitRepo {
   // https://stackoverflow.com/questions/8200622
   clean() {
     return this.run('clean', ['clean', '--force', '-d'])
+  }
+  // https://stackoverflow.com/questions/7499938
+  logFiles(options: LogFilesOptions = {}) {
+    const args: string[] = ['log', '--name-only', `--pretty=format:`]
+
+    if (options.since) args.push(`--since="${options.since}"`)
+    if (options.until) args.push(`--until="${options.until}"`)
+    if (options.paths) args.push(...options.paths)
+
+    return this.run('log', args)
   }
 }
 
