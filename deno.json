@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A --unstable --watch=config.json source/server.ts --port=9000 --sync",
+    "dev": "deno run -A --unstable --watch=config.json,.env source/server.ts --port=9000 --sync",
     "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo --unstable source/server.ts"
   },
   "imports": {
