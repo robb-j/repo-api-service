@@ -27,12 +27,8 @@ export async function changedRoute({ request, url }: Context) {
   debug('changed', changes.stdout)
 
   return Response.json(
-    Array.from(
-      new Set(
-        changes.stdout.split(/\n+/)
-          .map((f) => f.trim())
-          .filter((f) => Boolean(f)),
-      ),
-    ),
+    changes.stdout.split(/\n+/)
+      .map((f) => f.trim())
+      .filter((f) => Boolean(f)),
   )
 }

@@ -2,6 +2,10 @@
 
 Notable changes to this project are documented here.
 
+## 0.2.1
+
+Tweak `/changed` to show all changes and not remove duplicates
+
 ## 0.2.0
 
 Added `/changed` endpoint to inspect when files have changed in git.
