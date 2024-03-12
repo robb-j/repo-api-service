@@ -108,7 +108,7 @@ here is how to bundle JavaScript into your Eleventy site too.
 
 You can tell the service to parse the file contents for you for both `file` and
 `glob` queries by using the `format` parameter. These formats are supported:
-`json`, `yaml`,`csv`,`markdown`,`toml` and `binary`. If not specified it
+`json`, `yaml`,`csv`,`markdown`,`toml`, `ini` and `binary`. If not specified it
 defaults to `binary`.
 
 ```sh

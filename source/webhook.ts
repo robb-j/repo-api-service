@@ -1,14 +1,19 @@
+import { defineRoute } from 'gruber/mod.ts'
+
 import { syncRepo } from './git.ts'
-import { Context, ioQueue, MethodNotAllowed } from './lib.ts'
+import { assertAuth, ioQueue } from './lib.ts'
 
 // EXPERIMENTAL
-export async function webhookRoute({ request, url }: Context) {
-  if (request.method !== 'GET') throw new MethodNotAllowed()
+// TODO: authenticate request ?
+export const webhookRoute = defineRoute({
+  method: 'GET',
+  pathname: '/webhook',
+  async handler({ request, url }) {
+    assertAuth(request)
 
-  // TODO: authenticate request ?
+    const promise = ioQueue.add(() => syncRepo())
+    if (url.searchParams.has('wait')) await promise
 
-  const promise = ioQueue.add(() => syncRepo())
-  if (url.searchParams.has('wait')) await promise
-
-  return new Response('ok')
-}
+    return new Response('ok')
+  },
+})
