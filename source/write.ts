@@ -51,13 +51,13 @@ export const writeFileRoute = defineRoute({
         await request.body!.pipeTo(target.writable)
         debug('file written', request.body)
 
-        const stage = await repo.stage(file)
-        debug('stage', stage.ok)
-
         if (!appConfig.git.commit) {
           debug('skip commit')
           return Response.json('ok')
         }
+
+        const stage = await repo.stage(file)
+        debug('stage', stage.ok)
 
         const commit = await repo.commit(
           `${appConfig.git.commitPrefix}: ${message}`,
