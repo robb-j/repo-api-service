@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "dev": "deno run -A --unstable --watch=config.json,.env source/server.ts --port=9000 --sync",
-    "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo --unstable source/server.ts"
+    "dev": "deno run -A --watch=config.json --env source/server.ts --port=9000",
+    "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo source/server.ts"
   },
   "imports": {
     "std/": "https://deno.land/std@0.222.1/",
