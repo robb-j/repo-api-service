@@ -290,16 +290,19 @@ To see how to configure the app, run `deno run -A source/config.ts` which shows
 the default configuration, how it is configured and the table below. The JSON
 configuration file should be placed at the root of the project as `config.json`.
 
-| name | type | flag | variable | fallback | | ================ | ======= |
-====== | =========== | ====================================== | | auth.key |
-string | ~ | ~ | | | env | string | ~ | DENO_ENV | development | | git.commit |
-boolean | ~ | GIT_COMMIT | false | | git.commitPrefix | string | ~ | ~ |
-repo-api-service | | git.pull | boolean | ~ | GIT_PULL | false | | git.push |
-boolean | ~ | GIT_PUSH | false | | git.remote | string | ~ | GIT_REMOTE |
-https://github.com/robb-j/r0b-blog.git | | git.syncInterval | number | ~ | ~ |
-300000 | | meta.name | string | ~ | APP_NAME | robb-j/repo-api-service | |
-meta.version | string | ~ | APP_VERSION | 0.2.1 | | port | number | --port |
-APP_PORT | 8000 |
+| name             | type    | flag   | variable    | fallback                               |
+| ---------------- | ------- | ------ | ----------- | -------------------------------------- |
+| auth.key         | string  | ~      | ~           |                                        |
+| env              | string  | ~      | DENO_ENV    | development                            |
+| git.commit       | boolean | ~      | GIT_COMMIT  | false                                  |
+| git.commitPrefix | string  | ~      | ~           | repo-api-service                       |
+| git.pull         | boolean | ~      | GIT_PULL    | false                                  |
+| git.push         | boolean | ~      | GIT_PUSH    | false                                  |
+| git.remote       | string  | ~      | GIT_REMOTE  | https://github.com/robb-j/r0b-blog.git |
+| git.syncInterval | number  | ~      | ~           | 300000                                 |
+| meta.name        | string  | ~      | APP_NAME    | robb-j/repo-api-service                |
+| meta.version     | string  | ~      | APP_VERSION | 0.2.1                                  |
+| port             | number  | --port | APP_PORT    | 8000                                   |
 
 - `env` — Set the "mode" of the service, set to `development` to enable debug
   logging.
