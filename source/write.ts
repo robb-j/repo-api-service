@@ -20,8 +20,8 @@ export const writeFileRoute = defineRoute({
     const message = url.searchParams.get('message') ?? 'automated commit'
     const file = url.searchParams.get('file')
 
-    if (!file) throw HTTPError.badRequest() // ?file not set
-    if (!request.body) throw HTTPError.badRequest() // No body to parse
+    if (!file) throw HTTPError.badRequest('?file not set')
+    if (!request.body) throw HTTPError.badRequest('No body to parse')
 
     debug('scheduling')
 
@@ -54,14 +54,22 @@ export const writeFileRoute = defineRoute({
         const stage = await repo.stage(file)
         debug('stage', stage.ok)
 
-        const commit = await repo.commit('repo-api-service: ' + message)
-        debug('commit', commit.ok)
-        if (appConfig.git.push) {
-          const push = await repo.push()
-          debug('push', push.ok)
-        } else {
-          debug('skip push')
+        if (!appConfig.git.commit) {
+          debug('skip commit')
+          return Response.json('ok')
         }
+
+        const commit = await repo.commit(
+          `${appConfig.git.commitPrefix}: ${message}`,
+        )
+        debug('commit', commit.ok)
+
+        if (!appConfig.git.push) {
+          debug('skip push')
+          return Response.json('ok')
+        }
+        const push = await repo.push()
+        debug('push', push.ok)
 
         return Response.json('ok')
       } catch (error) {
@@ -73,7 +81,7 @@ export const writeFileRoute = defineRoute({
         const clean = await repo.clean()
         if (!clean.ok) console.error('clean failed', clean.stderr)
 
-        throw HTTPError.badRequest() // error.message
+        throw HTTPError.badRequest(error.message)
       }
     })
   },

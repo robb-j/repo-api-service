@@ -1,6 +1,6 @@
+import { defineRoute, HTTPError } from 'gruber/mod.ts'
 import * as fs from 'std/fs/mod.ts'
 import * as path from 'std/path/mod.ts'
-import { defineRoute, HTTPError } from 'gruber/mod.ts'
 
 import { assertAuth, createDebug, repoDir, userPath } from './lib.ts'
 
@@ -28,6 +28,6 @@ export const expandRoute = defineRoute({
       return Response.json(paths)
     }
 
-    throw HTTPError.badRequest() // Unsupported parameters
+    throw HTTPError.badRequest('Unsupported parameters')
   },
 })

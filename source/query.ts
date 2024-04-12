@@ -1,11 +1,11 @@
 import { defineRoute, HTTPError } from 'gruber/mod.ts'
-import * as path from 'std/path/mod.ts'
-import * as fs from 'std/fs/mod.ts'
-import * as yaml from 'std/yaml/mod.ts'
 import * as csv from 'std/csv/mod.ts'
 import * as frontMatter from 'std/front_matter/any.ts'
-import * as toml from 'std/toml/mod.ts'
+import * as fs from 'std/fs/mod.ts'
 import * as ini from 'std/ini/mod.ts'
+import * as path from 'std/path/mod.ts'
+import * as toml from 'std/toml/mod.ts'
+import * as yaml from 'std/yaml/mod.ts'
 
 import { assertAuth, createDebug, repoDir, userPath } from './lib.ts'
 
@@ -93,8 +93,9 @@ export const queryRoute = defineRoute({
         const denoFile = await Deno.open(fileUrl, { read: true })
         return new Response(denoFile.readable)
       } catch (error) {
-        // `query failed: ${error.name} + ${error.message}`
-        throw HTTPError.badRequest()
+        throw HTTPError.badRequest(
+          `query failed: ${error.name} + ${error.message}`,
+        )
       }
     }
 
@@ -141,12 +142,13 @@ export const queryRoute = defineRoute({
         // TODO: maybe use multipart/related ?
         return new Response(data)
       } catch (error) {
-        // `query failed: ${error.name} + ${error.message}`
-        throw HTTPError.badRequest()
+        throw HTTPError.badRequest(
+          `query failed: ${error.name} + ${error.message}`,
+        )
       }
     }
 
-    throw HTTPError.badRequest() // Unsupported parameters
+    throw HTTPError.badRequest('Unsupported parameters')
   },
 })
 

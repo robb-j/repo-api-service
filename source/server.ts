@@ -1,24 +1,12 @@
-import * as flags from 'std/flags/mod.ts'
-
-import { isHttpError } from 'std/http/http_errors.ts'
-import { gray, red, yellow } from 'std/fmt/colors.ts'
-
-import { appConfig } from './config.ts'
-import { syncRepo } from './git.ts'
-import {
-  cleanStack,
-  createDebug,
-  getBearer,
-  ioQueue,
-  pickHttpColor,
-  prettySearch,
-} from './lib.ts'
-import { expandRoute } from './expand.ts'
-import { queryRoute } from './query.ts'
-import { writeFileRoute } from './write.ts'
-import { webhookRoute } from './webhook.ts'
-import { changedRoute } from './changed.ts'
 import { defineRoute, DenoRouter } from 'gruber/mod.ts'
+import { changedRoute } from './changed.ts'
+import { appConfig } from './config.ts'
+import { expandRoute } from './expand.ts'
+import { syncRepo } from './git.ts'
+import { createDebug, ioQueue } from './lib.ts'
+import { queryRoute } from './query.ts'
+import { webhookRoute } from './webhook.ts'
+import { writeFileRoute } from './write.ts'
 
 const debug = createDebug('server')
 

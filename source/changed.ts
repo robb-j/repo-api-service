@@ -21,7 +21,7 @@ export const changedRoute = defineRoute({
     debug('options', options)
 
     const changes = await repo.logFiles(options)
-    if (!changes.ok) throw HTTPError.internalServerError() // Failed to git-log
+    if (!changes.ok) throw HTTPError.internalServerError('Failed to git-log')
 
     debug('changed', changes.stdout)
 

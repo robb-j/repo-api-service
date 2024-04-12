@@ -16,6 +16,7 @@ migrated to it, it mostly involved removing code too! 🎉
   `app.name` and `app.version` via configuration.
 - See the current configuration and print usage by running the config.ts script
   ~ `deno run -A source/config.ts`
+  - new configuration `git.commitPrefix` to customise the commit message
 
 ## 0.2.1
 

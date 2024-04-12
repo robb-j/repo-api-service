@@ -4,8 +4,8 @@
     "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo --unstable source/server.ts"
   },
   "imports": {
-    "std/": "https://deno.land/std@0.219.0/",
-    "gruber/": "https://esm.r0b.io/gruber@0.3.0/"
+    "std/": "https://deno.land/std@0.222.1/",
+    "gruber/": "https://esm.r0b.io/gruber@0.4.1/"
   },
   "fmt": {
     "singleQuote": true,

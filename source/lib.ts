@@ -1,6 +1,6 @@
+import { HTTPError } from 'gruber/mod.ts'
 import { cyan, gray, green, red, underline } from 'std/fmt/colors.ts'
 import { appConfig } from './config.ts'
-import { HTTPError } from 'gruber/mod.ts'
 
 // TODO: these should be in appConfig
 export const scriptsDir = new URL('../scripts/', import.meta.url)
@@ -113,6 +113,7 @@ export function createDebug(namespace: string) {
 }
 
 export function assertAuth(request: Request) {
+  if (appConfig.auth.key === '') return
   const header = getBearer(request.headers)
   if (header !== appConfig.auth.key) throw HTTPError.unauthorized()
 }
