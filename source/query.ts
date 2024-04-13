@@ -1,18 +1,13 @@
-import * as path from 'std/path/mod.ts'
-import * as fs from 'std/fs/mod.ts'
-import * as yaml from 'std/yaml/mod.ts'
+import { defineRoute, HTTPError } from 'gruber/mod.ts'
 import * as csv from 'std/csv/mod.ts'
 import * as frontMatter from 'std/front_matter/any.ts'
+import * as fs from 'std/fs/mod.ts'
+import * as ini from 'std/ini/mod.ts'
+import * as path from 'std/path/mod.ts'
 import * as toml from 'std/toml/mod.ts'
+import * as yaml from 'std/yaml/mod.ts'
 
-import {
-  BadRequest,
-  Context,
-  createDebug,
-  MethodNotAllowed,
-  repoDir,
-  userPath,
-} from './lib.ts'
+import { assertAuth, createDebug, repoDir, userPath } from './lib.ts'
 
 const debug = createDebug('query')
 
@@ -40,11 +35,15 @@ export async function processFile(
     try {
       return frontMatter.extract(text)
     } catch {
+      // Not all markdown files have frontmatter
       return { frontMatter: '', body: text, attrs: {} }
     }
   }
   if (format === 'toml') {
     return toml.parse(await Deno.readTextFile(fileUrl))
+  }
+  if (format === 'ini') {
+    return ini.parse(await Deno.readTextFile(fileUrl))
   }
   if (format !== 'binary') {
     throw new Error(`Unknown type '${format}'`)
@@ -64,83 +63,94 @@ function decodeFilter(input: string | null) {
   )
 }
 
-export async function queryRoute({ request, url }: Context) {
-  if (request.method !== 'GET') throw new MethodNotAllowed()
+export const queryRoute = defineRoute({
+  method: 'GET',
+  pathname: '/query',
+  async handler({ request, url }) {
+    assertAuth(request)
 
-  const format = url.searchParams.get('format') ?? 'binary'
-  const file = url.searchParams.get('file')
-  const glob = url.searchParams.get('glob')
-  const columns = url.searchParams.get('columns')?.split(',')
+    const format = url.searchParams.get('format') ?? 'binary'
+    const file = url.searchParams.get('file')
+    const glob = url.searchParams.get('glob')
+    const columns = url.searchParams.get('columns')?.split(',')
 
-  // EXPERIMENTAL
-  const filter = decodeFilter(url.searchParams.get('filter'))
+    // EXPERIMENTAL
+    const filter = decodeFilter(url.searchParams.get('filter'))
 
-  // Process single file lookups
-  if (file) {
-    try {
-      const fileUrl = userPath(file)
-      debug('file', fileUrl.pathname)
+    // Process single file lookups
+    if (file) {
+      try {
+        const fileUrl = userPath(file)
+        debug('file', fileUrl.pathname)
 
-      const processedData = await processFile(fileUrl, format, { columns })
-      if (processedData) {
-        debug('data %o', processedData)
-        return Response.json(processedData)
-      }
-
-      debug('raw')
-      const denoFile = await Deno.open(fileUrl, { read: true })
-      return new Response(denoFile.readable)
-    } catch (error) {
-      throw new BadRequest(`query failed: ${error.name} + ${error.message}`)
-    }
-  }
-
-  // Process multi-file lookups glob-based look ups
-  if (glob) {
-    debug('glob', glob)
-    try {
-      const globUrl = userPath(glob)
-      const data = new FormData()
-
-      // TODO: this could use a ReadableStream to make it more efficient
-
-      for await (const match of fs.expandGlob(globUrl)) {
-        if (!match.isFile) continue
-        debug('match', match.path)
-
-        const relative = path.relative(repoDir.pathname, match.path)
-
-        const processedData = await processFile(match.path, format, { columns })
-
+        const processedData = await processFile(fileUrl, format, { columns })
         if (processedData) {
           debug('data %o', processedData)
-          if (filter && !matchFilter(processedData, filter)) continue
-
-          data.set(
-            relative,
-            new Blob([JSON.stringify(processedData)], {
-              type: 'application/json',
-            }),
-            relative,
-          )
-        } else {
-          debug('raw')
-          data.set(
-            relative,
-            new Blob([await Deno.readFile(match.path)]),
-            relative,
-          )
+          return Response.json(processedData)
         }
-      }
-      // TODO: maybe use multipart/related ?
-      return new Response(data)
-    } catch (error) {
-      throw new BadRequest(`query failed: ${error.name} + ${error.message}`)
-    }
-  }
 
-  throw new BadRequest('Unsupported parameters')
-}
+        debug('raw')
+        const denoFile = await Deno.open(fileUrl, { read: true })
+        return new Response(denoFile.readable)
+      } catch (error) {
+        throw HTTPError.badRequest(
+          `query failed: ${error.name} + ${error.message}`,
+        )
+      }
+    }
+
+    // Process multi-file lookups glob-based look ups
+    if (glob) {
+      debug('glob', glob)
+      try {
+        const globUrl = userPath(glob)
+        const data = new FormData()
+
+        // TODO: this might be able to use a ReadableStream to make it more efficient
+        //       and there could be some parallel processing
+
+        for await (const match of fs.expandGlob(globUrl)) {
+          if (!match.isFile) continue
+          debug('match', match.path)
+
+          const relative = path.relative(repoDir.pathname, match.path)
+
+          const processedData = await processFile(match.path, format, {
+            columns,
+          })
+
+          if (processedData) {
+            debug('data format=%s %o', format, processedData)
+            if (filter && !matchFilter(processedData, filter)) continue
+
+            data.set(
+              relative,
+              new Blob([JSON.stringify(processedData)], {
+                type: 'application/json',
+              }),
+              relative,
+            )
+          } else {
+            debug('raw')
+            data.set(
+              relative,
+              new Blob([await Deno.readFile(match.path)]),
+              relative,
+            )
+          }
+        }
+        // TODO: maybe use multipart/related ?
+        return new Response(data)
+      } catch (error) {
+        throw HTTPError.badRequest(
+          `query failed: ${error.name} + ${error.message}`,
+        )
+      }
+    }
+
+    throw HTTPError.badRequest('Unsupported parameters')
+  },
+})
 
 // deno-lint-ignore no-explicit-any
 function matchFilter(input: any, filter: Record<string, unknown>): boolean {

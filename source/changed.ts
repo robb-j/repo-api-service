@@ -1,34 +1,34 @@
+import { defineRoute, HTTPError } from 'gruber/mod.ts'
+
 import { GitRepo, LogFilesOptions } from './git.ts'
-import {
-  Context,
-  createDebug,
-  InternalServerError,
-  MethodNotAllowed,
-  repoDir,
-} from './lib.ts'
+import { assertAuth, createDebug, repoDir } from './lib.ts'
 
 const debug = createDebug('changed')
 
-export async function changedRoute({ request, url }: Context) {
-  if (request.method !== 'GET') throw new MethodNotAllowed()
+export const changedRoute = defineRoute({
+  method: 'GET',
+  pathname: '/changed',
+  async handler({ request, url }) {
+    assertAuth(request)
 
-  const repo = new GitRepo(repoDir, request.signal)
+    const repo = new GitRepo(repoDir, request.signal)
 
-  const options: LogFilesOptions = {}
-  options.since = url.searchParams.get('since') ?? undefined
-  options.until = url.searchParams.get('until') ?? undefined
-  options.paths = url.searchParams.getAll('paths')
+    const options: LogFilesOptions = {}
+    options.since = url.searchParams.get('since') ?? undefined
+    options.until = url.searchParams.get('until') ?? undefined
+    options.paths = url.searchParams.getAll('paths')
 
-  debug('options', options)
+    debug('options', options)
 
-  const changes = await repo.logFiles(options)
-  if (!changes.ok) throw new InternalServerError('Failed to git-log')
+    const changes = await repo.logFiles(options)
+    if (!changes.ok) throw HTTPError.internalServerError('Failed to git-log')
 
-  debug('changed', changes.stdout)
+    debug('changed', changes.stdout)
 
-  return Response.json(
-    changes.stdout.split(/\n+/)
-      .map((f) => f.trim())
-      .filter((f) => Boolean(f)),
-  )
-}
+    return Response.json(
+      changes.stdout.split(/\n+/)
+        .map((f) => f.trim())
+        .filter((f) => Boolean(f)),
+    )
+  },
+})

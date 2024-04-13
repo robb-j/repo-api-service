@@ -108,7 +108,7 @@ here is how to bundle JavaScript into your Eleventy site too.
 
 You can tell the service to parse the file contents for you for both `file` and
 `glob` queries by using the `format` parameter. These formats are supported:
-`json`, `yaml`,`csv`,`markdown`,`toml` and `binary`. If not specified it
+`json`, `yaml`,`csv`,`markdown`,`toml`, `ini` and `binary`. If not specified it
 defaults to `binary`.
 
 ```sh
@@ -283,53 +283,37 @@ vary: Accept-Encoding
 
 ## Configuration
 
-The service can be configured by a configuration file or with environment
-variables.
+The service can be configured by a configuration file, CLI arguments or
+environment variables.
 
-For example:
+To see how to configure the app, run `deno run -A source/config.ts` which shows
+the default configuration, how it is configured and the table below. The JSON
+configuration file should be placed at the root of the project as `config.json`.
 
-```json
-{
-  "env": "development",
-  "git": {
-    "remote": "git@github.com:robb-j/r0b-home.git",
-    "pull": true,
-    "push": true,
-    "syncInterval": 300000
-  },
-  "auth": {
-    "key": "top_secret"
-  }
-}
-```
+| name             | type    | flag   | variable    | fallback                               |
+| ---------------- | ------- | ------ | ----------- | -------------------------------------- |
+| auth.key         | string  | ~      | ~           |                                        |
+| env              | string  | ~      | DENO_ENV    | development                            |
+| git.commit       | boolean | ~      | GIT_COMMIT  | false                                  |
+| git.commitPrefix | string  | ~      | ~           | repo-api-service                       |
+| git.pull         | boolean | ~      | GIT_PULL    | false                                  |
+| git.push         | boolean | ~      | GIT_PUSH    | false                                  |
+| git.remote       | string  | ~      | GIT_REMOTE  | https://github.com/robb-j/r0b-blog.git |
+| git.syncInterval | number  | ~      | ~           | 300000                                 |
+| meta.name        | string  | ~      | APP_NAME    | robb-j/repo-api-service                |
+| meta.version     | string  | ~      | APP_VERSION | 0.2.1                                  |
+| port             | number  | --port | APP_PORT    | 8000                                   |
 
-### `env`
-
-Set the "mode" of the service, set to `development` to enable debug logging, can
-be set with the `DENO_ENV` environment variable, defaults to `production`.
-
-### `git.remote`
-
-The remote of the git repository for the service, can be set with `GIT_REMOTE`.
-
-### `git.pull`
-
-Whether to pull the git repository, can be set with `GIT_PULL=1` and defaults to
-false.
-
-### `git.push`
-
-Whether to push back to the git repository, can be set with `GIT_PUSH=1` and
-defaults to false.
-
-### `git.syncInterval`
-
-How often to update the git repository, in milliseconds.
-
-### `auth.key`
-
-Turn on authentication, if set all requests will need to have a
-`Authorization: Bearer $KEY` header with the same value for them to be accepted.
+- `env` — Set the "mode" of the service, set to `development` to enable debug
+  logging.
+- `git.remote` — The remote of the git repository for the service.
+- `git.pull` — Whether to pull the git repository while synchronising.
+- `git.push` — Whether to push back to the git remote.
+- `git.syncInterval` — How often to synchronise the git repository, in
+  milliseconds.
+- `auth.key` — Turn on authentication, if set all requests will need to have a
+  `Authorization: Bearer $KEY` header with the same value for them to be
+  accepted. Setting to empty string `""` disables this
 
 ### Git permissions
 
@@ -394,3 +378,5 @@ deno task dev
 3. Commit the change as `X.Y.Z`
 4. Tag the commit as `vX.Y.Z`
 5. Push the commit & tag and it'll build the container.
+6. Publish the latest version of the client JavaScript by uploading to the S3
+   bucket with public-read.

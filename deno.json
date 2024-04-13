@@ -1,11 +1,11 @@
 {
   "tasks": {
-    "dev": "deno run -A --unstable --watch=config.json,.env source/server.ts --port=9000 --sync",
-    "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo --unstable source/server.ts"
+    "dev": "deno run -A --watch=config.json --env source/server.ts --port=9000",
+    "serve": "deno run --allow-env --allow-read=. --allow-run --allow-net --allow-write=repo source/server.ts"
   },
   "imports": {
-    "std/": "https://deno.land/std@0.190.0/",
-    "superstruct": "npm:superstruct@^1.0.3"
+    "std/": "https://deno.land/std@0.222.1/",
+    "gruber/": "https://esm.r0b.io/gruber@0.4.1/"
   },
   "fmt": {
     "singleQuote": true,

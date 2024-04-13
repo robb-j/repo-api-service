@@ -1,25 +1,8 @@
+import { HTTPError } from 'gruber/mod.ts'
 import { cyan, gray, green, red, underline } from 'std/fmt/colors.ts'
-import { errors } from 'std/http/mod.ts'
-import {
-  boolean,
-  coerce,
-  create,
-  defaulted,
-  object,
-  string,
-  Struct,
-} from 'superstruct'
 import { appConfig } from './config.ts'
 
-//
-// Re-export std/http errors for quick access in routes
-//
-export const BadRequest = errors.BadRequest
-export const InternalServerError = errors.InternalServerError
-export const MethodNotAllowed = errors.MethodNotAllowed
-export const NotFound = errors.NotFound
-export const Unauthorized = errors.Unauthorized
-
+// TODO: these should be in appConfig
 export const scriptsDir = new URL('../scripts/', import.meta.url)
 export const repoDir = new URL('../repo/', import.meta.url)
 
@@ -30,48 +13,6 @@ export function userPath(input: string) {
     throw new Error(`invalid user path ${input}`)
   }
   return url
-}
-
-/** A string of config that either exists, is from an environment variable or has a fallback value */
-export function env(key: string, fallback: string) {
-  return defaulted(string(), Deno.env.get(key) ?? fallback)
-}
-
-/** A boolean of config for whether an environment variable is set, or a fallback value */
-export function envBool(key: string, fallback: boolean) {
-  return defaulted(
-    coerce(boolean(), string(), (v) => Boolean(v)),
-    Deno.env.has(key) ?? fallback,
-  )
-}
-
-// deno-lint-ignore no-explicit-any
-export function envObj<T extends Record<string, Struct<any, any>>>(v: T) {
-  return defaulted(object(v), {})
-}
-
-/** Load a json file, parse it & coerce its contents based on the struct */
-export function loadJsonConfig<T>(url: URL, struct: Struct<T>): T {
-  let file: string
-  try {
-    file = Deno.readTextFileSync(url)
-  } catch {
-    return create({}, struct)
-  }
-  return create(JSON.parse(file), struct)
-}
-
-/** The context for a http route */
-export interface Context {
-  request: Request
-  url: URL
-  params: Record<string, string>
-}
-
-/** An endpoint on the server */
-export interface Endpoint {
-  pattern: URLPattern
-  fn(ctx: Context): Promise<Response | void> | Response | void
 }
 
 /** Execute a binary and get the status code, stdout & stderror */
@@ -169,4 +110,10 @@ export function createDebug(namespace: string) {
     if (appConfig.env !== 'development') return
     console.debug(`${gray(namespace)} ${message}`, ...data)
   }
+}
+
+export function assertAuth(request: Request) {
+  if (appConfig.auth.key === '') return
+  const header = getBearer(request.headers)
+  if (header !== appConfig.auth.key) throw HTTPError.unauthorized()
 }
