@@ -1,4 +1,4 @@
-FROM denoland/deno:alpine-1.34.0
+FROM denoland/deno:alpine-1.42.1
 
 # Create a volume to put the repo in with the correct permissions
 RUN mkdir -p /app/repo && chown -R deno:deno /app/repo \

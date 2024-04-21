@@ -2,6 +2,10 @@
 
 Notable changes to this project are documented here.
 
+## 0.3.1
+
+Fixed the container build & updated to use Deno `1.42.1`
+
 ## 0.3.0
 
 Internally refactored code to use [gruber](https://github.com/robb-j/gruber).
