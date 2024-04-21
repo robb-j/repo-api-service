@@ -373,9 +373,10 @@ deno task dev
 
 **release process**
 
-1. Make sure the `CHANGELOG.md` is up to date
+1. Make sure the `CHANGELOG.md` and [Configuration](#configuration) is up to
+   date
 2. Bump the version in `app.json`
-3. Commit the change as `X.Y.Z`
+3. Commit the change as `vX.Y.Z`
 4. Tag the commit as `vX.Y.Z`
 5. Push the commit & tag and it'll build the container.
 6. Publish the latest version of the client JavaScript by uploading to the S3

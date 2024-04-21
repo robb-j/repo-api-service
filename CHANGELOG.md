@@ -2,7 +2,7 @@
 
 Notable changes to this project are documented here.
 
-## next
+## 0.3.0
 
 Internally refactored code to use [gruber](https://github.com/robb-j/gruber).
 This project was part of the inspiration for gruber so it's fitting to be
