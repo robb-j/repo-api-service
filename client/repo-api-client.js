@@ -1,5 +1,5 @@
 //
-// repo-api-client@0.0.1
+// repo-api-client@VERSION
 //
 
 /**
@@ -18,7 +18,7 @@
 export class RepoApi {
   /** @param {string|URL} url */
   constructor(url) {
-    this.url = url;
+    this.url = url
   }
 
   /**
@@ -28,17 +28,17 @@ export class RepoApi {
    * @returns {Promise<T>}
    */
   async queryFile(file, options = {}) {
-    const url = new URL("./query", this.url);
-    url.searchParams.set("file", file);
-    if (options.format) url.searchParams.set("format", options.format);
+    const url = new URL('./query', this.url)
+    url.searchParams.set('file', file)
+    if (options.format) url.searchParams.set('format', options.format)
     if (options.columns) {
-      url.searchParams.set("columns", options.columns.join(","));
+      url.searchParams.set('columns', options.columns.join(','))
     }
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(await res.text());
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(await res.text())
 
-    return options.format ? res.json() : res.text();
+    return options.format ? res.json() : res.text()
   }
 
   /**
@@ -50,14 +50,13 @@ export class RepoApi {
   queryCsvFile(file, columns) {
     return (
       this.queryFile < Record < T,
-      string >
-        [] >
-        (file,
-        {
-          format: "csv",
-          columns,
-        })
-    );
+        string >
+          [] >
+          (file, {
+            format: 'csv',
+            columns,
+          })
+    )
   }
 
   /**
@@ -67,23 +66,23 @@ export class RepoApi {
    * @returns {Promise<Map<string, T>>}
    */
   async queryGlob(glob, { format, columns } = {}) {
-    const url = new URL("./query", this.url);
-    url.searchParams.set("glob", glob);
-    if (format) url.searchParams.set("format", format);
-    if (columns) url.searchParams.set("columns", columns.join(","));
+    const url = new URL('./query', this.url)
+    url.searchParams.set('glob', glob)
+    if (format) url.searchParams.set('format', format)
+    if (columns) url.searchParams.set('columns', columns.join(','))
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(await res.text());
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(await res.text())
 
-    const data = await res.formData();
-    const output = new Map();
+    const data = await res.formData()
+    const output = new Map()
 
     for (const [key, item] of data) {
-      const text = typeof item === "string" ? item : await item.text();
-      output.set(key, format ? JSON.parse(text) : text);
+      const text = typeof item === 'string' ? item : await item.text()
+      output.set(key, format ? JSON.parse(text) : text)
     }
 
-    return output;
+    return output
   }
 
   /**
@@ -95,14 +94,13 @@ export class RepoApi {
   queryCsvGlob(glob, columns) {
     return (
       this.queryGlob < Record < T,
-      string >
-        [] >
-        (glob,
-        {
-          format: "csv",
-          columns,
-        })
-    );
+        string >
+          [] >
+          (glob, {
+            format: 'csv',
+            columns,
+          })
+    )
   }
 
   /**
@@ -111,13 +109,13 @@ export class RepoApi {
    * @param {string} [message]
    */
   async write(file, body, message = undefined) {
-    const url = new URL("./file", this.url);
-    url.searchParams.set("file", file);
-    if (message) url.searchParams.set("message", message);
+    const url = new URL('./file', this.url)
+    url.searchParams.set('file', file)
+    if (message) url.searchParams.set('message', message)
 
-    const res = await fetch(url, { body, method: "PUT" });
+    const res = await fetch(url, { body, method: 'PUT' })
 
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await res.text())
   }
 
   /**
@@ -125,13 +123,13 @@ export class RepoApi {
    * @returns {Promise<string[]>}
    */
   async expandGlob(glob) {
-    const url = new URL("./expand", this.url);
-    url.searchParams.set("glob", glob);
+    const url = new URL('./expand', this.url)
+    url.searchParams.set('glob', glob)
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(await res.text());
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(await res.text())
 
-    return res.json();
+    return res.json()
   }
 
   /**
@@ -139,14 +137,14 @@ export class RepoApi {
    * @returns {Promise<string[]>}
    */
   async changed(options) {
-    const url = new URL("/changed", this.url);
-    options.paths?.forEach((path) => url.searchParams.append("paths", path));
-    if (options.since) url.searchParams.set("since", options.since);
-    if (options.until) url.searchParams.set("until", options.until);
+    const url = new URL('/changed', this.url)
+    options.paths?.forEach((path) => url.searchParams.append('paths', path))
+    if (options.since) url.searchParams.set('since', options.since)
+    if (options.until) url.searchParams.set('until', options.until)
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(await res.text());
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(await res.text())
 
-    return res.json();
+    return res.json()
   }
 }

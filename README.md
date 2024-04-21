@@ -359,6 +359,33 @@ hosts.
 If you want to use a config file, mount that at `/app/config.json` in the
 container.
 
+## API Client
+
+There is an API client at `https://esm.r0b.io/repo-api-client@0.3.0/mod.js`, you
+can see the source code at
+[client/repo-api-client.js](./client/repo-api-client.js).
+
+```js
+import { RepoApi } from 'https://esm.r0b.io/repo-api-client@0.3.0/mod.js'
+
+const api = new RepoApi('https://example.com')
+
+const indexFile = await api.queryFile('content/index.md', {
+  format: 'markdown',
+})
+
+const csv = await api.queryCsvFile('products.csv', ['id', 'date', 'name'])
+
+const pages = await api.queryGlob('**/*.md', { format: 'markdown' })
+
+const usage = await api.queryCsvGlob('**/usage.csv', ['id', 'date', 'amount'])
+
+const contents = 'hello there'
+await api.write('hello.txt', contents, 'add hello.txt file')
+
+const fileNames = await api.expandGlob('**/*.md')
+```
+
 ## Development
 
 There are deno tasks for local development and they are configured to run the
