@@ -2,6 +2,10 @@
 
 Notable changes to this project are documented here.
 
+## 0.3.3
+
+Fixed API client part 2
+
 ## 0.3.2
 
 Fixed API client
