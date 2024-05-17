@@ -48,15 +48,7 @@ export class RepoApi {
    * @returns {Promise<Record<T, string>[]>}
    */
   queryCsvFile(file, columns) {
-    return (
-      this.queryFile < Record < T,
-        string >
-          [] >
-          (file, {
-            format: 'csv',
-            columns,
-          })
-    )
+    return this.queryFile(file, { format: 'csv', columns })
   }
 
   /**
@@ -92,12 +84,7 @@ export class RepoApi {
    * @returns {Promise<Map<string, Record<T, string>[]>>}
    */
   queryCsvGlob(glob, columns) {
-    return (
-      this.queryGlob(glob, {
-        format: 'csv',
-        columns,
-      })
-    )
+    return this.queryGlob(glob, { format: 'csv', columns })
   }
 
   /**

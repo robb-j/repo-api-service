@@ -301,7 +301,7 @@ configuration file should be placed at the root of the project as `config.json`.
 | git.remote       | string  | ~      | GIT_REMOTE  | https://github.com/robb-j/r0b-blog.git |
 | git.syncInterval | number  | ~      | ~           | 300000                                 |
 | meta.name        | string  | ~      | APP_NAME    | robb-j/repo-api-service                |
-| meta.version     | string  | ~      | APP_VERSION | 0.2.1                                  |
+| meta.version     | string  | ~      | APP_VERSION | 1.2.3                                  |
 | port             | number  | --port | APP_PORT    | 8000                                   |
 
 - `env` — Set the "mode" of the service, set to `development` to enable debug
