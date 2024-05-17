@@ -93,13 +93,10 @@ export class RepoApi {
    */
   queryCsvGlob(glob, columns) {
     return (
-      this.queryGlob < Record < T,
-        string >
-          [] >
-          (glob, {
-            format: 'csv',
-            columns,
-          })
+      this.queryGlob(glob, {
+        format: 'csv',
+        columns,
+      })
     )
   }
 
