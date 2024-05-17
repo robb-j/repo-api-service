@@ -407,4 +407,4 @@ deno task dev
 4. Tag the commit as `vX.Y.Z`
 5. Push the commit & tag and it'll build the container.
 6. Publish the latest version of the client JavaScript by uploading to the S3
-   bucket with public-read.
+   bucket with public-read and the current version in the comment.
