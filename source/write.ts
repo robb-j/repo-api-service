@@ -56,6 +56,12 @@ export const writeFileRoute = defineRoute({
           return Response.json('ok')
         }
 
+        const status = await repo.status()
+        if (status.stdout.trim() === '') {
+          debug('no change')
+          return Response.json('no-change')
+        }
+
         const stage = await repo.stage(file)
         debug('stage', stage.ok)
 

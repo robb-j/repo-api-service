@@ -63,6 +63,9 @@ export class GitRepo {
 
     return this.run('log', args)
   }
+  status() {
+    return this.run('status', ['status', '--porcelain'])
+  }
 }
 
 export async function syncRepo(signal?: AbortSignal) {

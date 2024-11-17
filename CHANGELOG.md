@@ -2,6 +2,11 @@
 
 Notable changes to this project are documented here.
 
+## 0.3.4
+
+Empty commits no longer fail. If you commit a file and it is the same as the one
+already in the repo with commit=true, you get a http 200 with "no-change".
+
 ## 0.3.3
 
 Fixed API client part 2
