@@ -2,6 +2,10 @@
 
 Notable changes to this project are documented here.
 
+## 0.3.6
+
+Fix error when performing requests
+
 ## 0.3.5
 
 Add missing `AUTH_KEY` variable to set `auth.key` configuration and add

@@ -1,5 +1,5 @@
 //
-// repo-api-client@0.3.5
+// repo-api-client@0.3.6
 //
 
 /**
