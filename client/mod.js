@@ -32,7 +32,7 @@ export class RepoApi {
 
   /** @param {string|URL} input */
   endpoint(input) {
-    if (typeof input === 'string' && url.startsWith('/')) {
+    if (typeof input === 'string' && input.startsWith('/')) {
       throw new SyntaxError("RepoApi url must not start with '/'")
     }
     if (input instanceof URL && input.origin !== this.url.origin) {
