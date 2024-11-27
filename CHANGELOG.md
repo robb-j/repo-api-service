@@ -2,6 +2,11 @@
 
 Notable changes to this project are documented here.
 
+## 0.3.5
+
+Add missing `AUTH_KEY` variable to set `auth.key` configuration and add
+`init.key` parameter to `RepoApi` client to set the same value client-side.
+
 ## 0.3.4
 
 Empty commits no longer fail. If you commit a file and it is the same as the one

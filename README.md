@@ -292,7 +292,7 @@ configuration file should be placed at the root of the project as `config.json`.
 
 | name             | type    | flag   | variable    | fallback                               |
 | ---------------- | ------- | ------ | ----------- | -------------------------------------- |
-| auth.key         | string  | ~      | ~           |                                        |
+| auth.key         | string  | ~      | AUTH_KEY    |                                        |
 | env              | string  | ~      | DENO_ENV    | development                            |
 | git.commit       | boolean | ~      | GIT_COMMIT  | false                                  |
 | git.commitPrefix | string  | ~      | ~           | repo-api-service                       |

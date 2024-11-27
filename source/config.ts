@@ -24,7 +24,7 @@ export const configSpec = config.object({
     syncInterval: config.number({ fallback: 5 * 60 * 1000 }),
   }),
   auth: config.object({
-    key: config.string({ fallback: '' }),
+    key: config.string({ variable: 'AUTH_KEY', fallback: '' }),
   }),
 })
 
