@@ -402,7 +402,7 @@ deno task dev
 
 1. Make sure the `CHANGELOG.md` and [Configuration](#configuration) is up to
    date
-2. Bump the version in `app.json`
+2. Bump the version in `app.json` and `client/mod.ts`
 3. Commit the change as `vX.Y.Z`
 4. Tag the commit as `vX.Y.Z`
 5. Push the commit & tag and it'll build the container.
